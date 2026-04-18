@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>かんたん問診メモ</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --surface: #ffffff;
+      --surface-soft: #f9fafb;
+      --button-soft: #e5e7eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --hero-line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-soft: #dbeafe;
+      --primary-contrast: #ffffff;
+      --primary-text: #0f3fae;
+      --danger: #b91c1c;
+      --danger-soft: #fee2e2;
+      --danger-line: #fecaca;
+      --ok: #065f46;
+      --ok-soft: #d1fae5;
+      --ok-line: #a7f3d0;
+      --info: #0f766e;
+      --info-soft: #ccfbf1;
+      --info-line: #99f6e4;
+      --shadow: 0 10px 30px rgba(0,0,0,.08);
+      --radius: 18px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111111;
+        --card: #1b1b1b;
+        --surface: #202020;
+        --surface-soft: #191919;
+        --button-soft: #2a2a2a;
+        --text: #ffd84d;
+        --muted: #ffe48a;
+        --line: #6a5b1a;
+        --hero-line: #6a5b1a;
+        --primary: #3b82f6;
+        --primary-soft: #1e3a8a;
+        --primary-contrast: #fff3bf;
+        --primary-text: #ffe27a;
+        --danger: #ff8a80;
+        --danger-soft: #3a1717;
+        --danger-line: #7c2d2d;
+        --ok: #86efac;
+        --ok-soft: #11261a;
+        --ok-line: #1f5133;
+        --info: #67e8f9;
+        --info-soft: #0f2c31;
+        --info-line: #155e75;
+        --shadow: 0 10px 30px rgba(0,0,0,.45);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 16px 80px;
+    }
+
+    .hero, .card {
+      background: var(--card);
+      border: 1px solid var(--hero-line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 22px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      line-height: 1.3;
+      margin: 0 0 10px;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      margin: 0 0 12px;
+    }
+
+    h3 {
+      font-size: 1rem;
+      margin: 0 0 10px;
+    }
+
+    p {
+      margin: 0 0 10px;
+    }
+
+    .small { font-size: .93rem; color: var(--muted); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .col-12 { grid-column: span 12; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+
+    @media (max-width: 760px) {
+      .col-6, .col-4 { grid-column: span 12; }
+      h1 { font-size: 1.55rem; }
+    }
+
+    .card { padding: 18px; }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      font: inherit;
+      color: var(--text);
+    }
+
+    textarea { min-height: 100px; resize: vertical; }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .chip input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .chip span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .chip input:checked + span {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary-text);
+    }
+
+    .chip.danger input:checked + span {
+      border-color: var(--danger);
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .range-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    input[type="range"] {
+      width: min(360px, 100%);
+    }
+
+    .score {
+      min-width: 82px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary-text);
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--primary);
+      color: var(--primary-contrast);
+    }
+
+    .secondary {
+      background: var(--button-soft);
+      color: var(--text);
+    }
+
+    .ghost {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .result {
+      white-space: pre-wrap;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      min-height: 180px;
+      font-size: 1.03rem;
+    }
+
+    .notice {
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin: 10px 0 0;
+      font-weight: 700;
+    }
+
+    .notice.warn {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid var(--danger-line);
+    }
+
+    .notice.ok {
+      background: var(--ok-soft);
+      color: var(--ok);
+      border: 1px solid var(--ok-line);
+    }
+
+    .notice.info {
+      background: var(--info-soft);
+      color: var(--info);
+      border: 1px solid var(--info-line);
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      font-size: .9rem;
+      color: var(--muted);
+    }
+
+    .transcript-box {
+      min-height: 180px;
+      white-space: pre-wrap;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 1.02rem;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: var(--button-soft);
+      border: 1px solid var(--line);
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--muted);
+      display: inline-block;
+    }
+
+    .status-pill.live .status-dot {
+      background: var(--danger);
+      box-shadow: 0 0 0 6px color-mix(in srgb, var(--danger) 22%, transparent);
+    }
+
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 760px) {
+      .two-column {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .browser-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: var(--primary-soft);
+      color: var(--primary-text);
+      border: 1px solid var(--line);
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>かんたん問診メモ</h1>
+      <p>聴覚障害がある人、話しにくい人、声が出しにくい人向けの、<strong>選ぶだけの簡易問診サイト</strong>です。選んだ内容を下にまとめて、受付や医師にそのまま見せられます。</p>
+      <p class="small">このサイトは診断をするものではありません。強い胸の痛み、息苦しさ、意識がおかしい、大量の出血、片側のまひなどがあるときは、すぐに救急や病院スタッフに知らせてください。</p>
+    </section>
+
+    <div class="grid">
+      <section class="card col-6">
+        <h2>1. 伝え方</h2>
+        <div class="chips" id="communicationChips">
+          <label class="chip"><input type="checkbox" value="聴覚障害があります"><span>聴覚障害あり</span></label>
+          <label class="chip"><input type="checkbox" value="声が出しにくいです"><span>声が出しにくい</span></label>
+          <label class="chip"><input type="checkbox" value="話せません"><span>話せない</span></label>
+          <label class="chip"><input type="checkbox" value="筆談を希望します"><span>筆談希望</span></label>
+          <label class="chip"><input type="checkbox" value="スマホ画面での会話を希望します"><span>スマホ画面で会話</span></label>
+          <label class="chip"><input type="checkbox" value="ゆっくり、正面から説明してください"><span>ゆっくり正面から説明</span></label>
+          <label class="chip"><input type="checkbox" value="マスクを外せる場面では口元が見えると助かります"><span>口元が見えると助かる</span></label>
+          <label class="chip"><input type="checkbox" value="付き添いと一緒に説明を聞きたいです"><span>付き添い同席希望</span></label>
+        </div>
+      </section>
+
+      <section class="card col-6">
+        <h2>2. 基本情報</h2>
+        <div class="grid">
+          <div class="col-6">
+            <label for="name">名前（任意）</label>
+            <input id="name" type="text" placeholder="例：近藤" />
+          </div>
+          <div class="col-6">
+            <label for="age">年齢（任意）</label>
+            <input id="age" type="number" min="0" max="130" placeholder="例：25" />
+          </div>
+          <div class="col-12">
+            <label for="history">持病・薬・アレルギー（任意）</label>
+            <textarea id="history" placeholder="例：ぜんそく。ペニシリンで発疹。毎日飲んでいる薬あり。"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="card col-12">
+        <h2>3. どこがつらいですか</h2>
+        <div class="chips" id="bodyChips">
+          <label class="chip"><input type="checkbox" value="頭"><span>頭</span></label>
+          <label class="chip"><input type="checkbox" value="目"><span>目</span></label>
+          <label class="chip"><input type="checkbox" value="耳"><span>耳</span></label>
+          <label class="chip"><input type="checkbox" value="のど"><span>のど</span></label>
+          <label class="chip"><input type="checkbox" value="首"><span>首</span></label>
+          <label class="chip danger"><input type="checkbox" value="胸"><span>胸</span></label>
+          <label class="chip"><input type="checkbox" value="お腹"><span>お腹</span></label>
+          <label class="chip"><input type="checkbox" value="背中"><span>背中</span></label>
+          <label class="chip"><input type="checkbox" value="腰"><span>腰</span></label>
+          <label class="chip"><input type="checkbox" value="手"><span>手</span></label>
+          <label class="chip"><input type="checkbox" value="足"><span>足</span></label>
+          <label class="chip"><input type="checkbox" value="全身"><span>全身</span></label>
+          <label class="chip"><input type="checkbox" value="その他"><span>その他</span></label>
+        </div>
+      </section>
+
+      <section class="card col-12">
+        <h2>4. どんな症状ですか</h2>
+        <div class="chips" id="symptomChips">
+          <label class="chip"><input type="checkbox" value="痛い"><span>痛い</span></label>
+          <label class="chip"><input type="checkbox" value="頭痛"><span>頭痛</span></label>
+          <label class="chip"><input type="checkbox" value="熱がある"><span>熱がある</span></label>
+          <label class="chip"><input type="checkbox" value="せき"><span>せき</span></label>
+          <label class="chip danger"><input type="checkbox" value="息苦しい"><span>息苦しい</span></label>
+          <label class="chip"><input type="checkbox" value="吐き気"><span>吐き気</span></label>
+          <label class="chip"><input type="checkbox" value="吐いた"><span>吐いた</span></label>
+          <label class="chip"><input type="checkbox" value="下痢"><span>下痢</span></label>
+          <label class="chip"><input type="checkbox" value="めまい"><span>めまい</span></label>
+          <label class="chip"><input type="checkbox" value="しびれ"><span>しびれ</span></label>
+          <label class="chip"><input type="checkbox" value="発疹"><span>発疹</span></label>
+          <label class="chip"><input type="checkbox" value="腫れ"><span>腫れ</span></label>
+          <label class="chip danger"><input type="checkbox" value="出血"><span>出血</span></label>
+          <label class="chip"><input type="checkbox" value="けが"><span>けが</span></label>
+          <label class="chip"><input type="checkbox" value="だるい"><span>だるい</span></label>
+          <label class="chip"><input type="checkbox" value="聞こえ方がいつもと違う"><span>聞こえ方が違う</span></label>
+        </div>
+      </section>
+
+      <section class="card col-6">
+        <h2>5. つらさの強さ</h2>
+        <div class="range-wrap">
+          <input id="severity" type="range" min="0" max="10" value="5" />
+          <div class="score" id="severityLabel">5 / 10</div>
+        </div>
+        <p class="small">0 = ほとんどない / 10 = とてもつらい</p>
+      </section>
+
+      <section class="card col-6">
+        <h2>6. いつからですか</h2>
+        <div class="chips" id="durationChips">
+          <label class="chip"><input type="radio" name="duration" value="今さっきから"><span>今さっきから</span></label>
+          <label class="chip"><input type="radio" name="duration" value="今日から"><span>今日から</span></label>
+          <label class="chip"><input type="radio" name="duration" value="昨日から"><span>昨日から</span></label>
+          <label class="chip"><input type="radio" name="duration" value="数日前から"><span>数日前から</span></label>
+          <label class="chip"><input type="radio" name="duration" value="1週間以上前から"><span>1週間以上前から</span></label>
+          <label class="chip"><input type="radio" name="duration" value="前から繰り返しています"><span>前から繰り返す</span></label>
+        </div>
+      </section>
+
+      <section class="card col-12">
+        <h2>7. 緊急で伝えたいこと</h2>
+        <div class="chips" id="redFlagChips">
+          <label class="chip danger"><input type="checkbox" value="強い胸の痛みがあります"><span>強い胸の痛み</span></label>
+          <label class="chip danger"><input type="checkbox" value="息が苦しいです"><span>息が苦しい</span></label>
+          <label class="chip danger"><input type="checkbox" value="大量の出血があります"><span>大量の出血</span></label>
+          <label class="chip danger"><input type="checkbox" value="意識がぼんやりします"><span>意識がおかしい</span></label>
+          <label class="chip danger"><input type="checkbox" value="片側の手足が動かしにくいです"><span>片側が動かしにくい</span></label>
+          <label class="chip danger"><input type="checkbox" value="顔のゆがみやろれつの回りにくさがあります"><span>顔のゆがみ・ろれつ</span></label>
+        </div>
+      </section>
+
+      <section class="card col-12">
+        <h2>8. 自由メモ</h2>
+        <label for="memo">医師に伝えたいこと（任意）</label>
+        <textarea id="memo" placeholder="例：右のこめかみがズキズキします。光がまぶしいです。熱は測っていません。"></textarea>
+
+        <div class="actions">
+          <button class="primary" id="makeSummary">問診メモを作る</button>
+          <button class="secondary" id="copySummary">コピー</button>
+          <button class="ghost" id="printSummary">印刷</button>
+          <button class="ghost" id="resetAll">リセット</button>
+        </div>
+      </section>
+
+      <section class="card col-12">
+        <h2>医師・受付に見せる画面</h2>
+        <div id="alertBox" class="notice ok">まだ作成していません。上の「問診メモを作る」を押してください。</div>
+        <div class="result" id="resultText" aria-live="polite">ここにまとめが表示されます。</div>
+        <p class="footer-note">この画面はブラウザ内だけで動きます。サーバーに送信しないので、初心者でも扱いやすく、GitHub Pagesでそのまま公開できます。</p>
+      </section>
+
+      <section class="card col-12">
+        <h2>医師の話を文字起こし</h2>
+        <div class="browser-badge" id="browserBadge">使用ブラウザを確認中...</div>
+        <div id="speechBrowserNotice" class="notice info">ブラウザに合わせた文字起こし方法を準備しています。</div>
+        <p class="small">この欄は、SafariならSafari系の音声認識、ChromeならChrome系の音声認識を自動判定して使います。対応していない場合は、下の貼り付け欄に別の文字起こし結果を入れて使えます。</p>
+
+        <div id="speechStatus" class="status-pill"><span class="status-dot"></span><span id="speechStatusText">待機中</span></div>
+
+        <div class="actions">
+          <button class="primary" id="startSpeech">マイク開始</button>
+          <button class="secondary" id="stopSpeech">停止</button>
+          <button class="ghost" id="clearTranscript">文字起こしを消す</button>
+          <button class="ghost" id="copyTranscript">文字起こしをコピー</button>
+          <button class="ghost" id="insertTranscriptToMemo">自由メモに入れる</button>
+        </div>
+
+        <div class="transcript-box" id="transcriptText" aria-live="polite">ここに医師の話した内容の文字起こしが表示されます。</div>
+
+        <div class="two-column">
+          <div>
+            <h3>ブラウザ文字起こしの結果</h3>
+            <p class="small">マイクで取得した結果がここに入ります。</p>
+          </div>
+          <div>
+            <label for="manualTranscript">手動の貼り付け欄（未対応ブラウザ用）</label>
+            <textarea id="manualTranscript" placeholder="SafariやChromeでうまく動かない時は、別の文字起こしアプリの結果をここに貼り付けてください。"></textarea>
+            <div class="actions">
+              <button class="ghost" id="useManualTranscript">貼り付け欄の内容を表示に反映</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="footer-note">注意: このサイトは静的サイトなので、iPhoneの標準アプリの専用文字起こし画面そのものを直接呼び出す仕組みではありません。各ブラウザで使える Web Speech API 系の音声認識を使います。対応状況はブラウザごとに差があります。</p>
+      </section>
+
+      <section class="card col-12">
+        <h2>医師の言葉の保存欄</h2>
+        <label for="doctorWords">医師が話した内容の保存（任意）</label>
+        <textarea id="doctorWords" placeholder="ここに、文字起こしした医師の説明を保存します。あとで見返したい内容を残せます。"></textarea>
+        <p class="small">上の「医師の言葉を保存」を押すと、この欄に追記されます。</p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const severity = document.getElementById('severity');
+    const severityLabel = document.getElementById('severityLabel');
+    const resultText = document.getElementById('resultText');
+    const alertBox = document.getElementById('alertBox');
+
+    const transcriptText = document.getElementById('transcriptText');
+    const speechStatus = document.getElementById('speechStatus');
+    const speechStatusText = document.getElementById('speechStatusText');
+    const browserBadge = document.getElementById('browserBadge');
+    const speechBrowserNotice = document.getElementById('speechBrowserNotice');
+    const manualTranscript = document.getElementById('manualTranscript');
+
+    let recognition = null;
+    let isListening = false;
+
+    function detectBrowser() {
+      const ua = navigator.userAgent;
+      const vendor = navigator.vendor || '';
+
+      const isCriOS = /CriOS/i.test(ua);
+      const isChromeDesktop = /Chrome|Chromium/i.test(ua) && /Google Inc/i.test(vendor);
+      const isChrome = isCriOS || isChromeDesktop;
+
+      const isSafariDesktop = /Safari/i.test(ua) && /Apple/i.test(vendor) && !/Chrome|Chromium|CriOS|Edg|OPR|Firefox/i.test(ua);
+      const isSafariIOS = /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua) && /Apple/i.test(vendor);
+      const isSafari = isSafariDesktop || isSafariIOS;
+
+      if (isSafari) {
+        return {
+          id: 'safari',
+          label: 'Safari を検出',
+          description: 'Safari系として扱います。Apple系ブラウザ機能による文字起こしを試します。'
+        };
+      }
+
+      if (isChrome) {
+        return {
+          id: 'chrome',
+          label: 'Chrome を検出',
+          description: 'Chrome系として扱います。Chrome系ブラウザの音声認識を使います。'
+        };
+      }
+
+      return {
+        id: 'other',
+        label: 'Safari / Chrome 以外のブラウザ',
+        description: 'このブラウザは補助対応です。音声認識が動けば使い、難しい場合は貼り付け欄を使ってください。'
+      };
+    }
+
+    const browserInfo = detectBrowser();
+    browserBadge.textContent = browserInfo.label;
+    speechBrowserNotice.textContent = browserInfo.description;
+
+    function setSpeechStatus(text, live = false) {
+      speechStatusText.textContent = text;
+      speechStatus.className = live ? 'status-pill live' : 'status-pill';
+    }
+
+    function createRecognition() {
+      const RecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!RecognitionClass) {
+        return null;
+      }
+
+      const instance = new RecognitionClass();
+      instance.lang = 'ja-JP';
+      instance.interimResults = true;
+      instance.continuous = true;
+
+      instance.onstart = () => {
+        isListening = true;
+        setSpeechStatus('文字起こし中', true);
+      };
+
+      instance.onend = () => {
+        isListening = false;
+        if (!transcriptText.dataset.errorState) {
+          setSpeechStatus('停止中');
+        }
+      };
+
+      instance.onerror = (event) => {
+        isListening = false;
+        transcriptText.dataset.errorState = '1';
+        const map = {
+          'not-allowed': 'マイク許可がありません',
+          'service-not-allowed': '音声認識の利用が許可されていません',
+          'no-speech': '音声がうまく取れませんでした',
+          'audio-capture': 'マイクが見つかりません',
+          'network': '通信状態の都合で失敗しました',
+          'aborted': '中断されました'
+        };
+        setSpeechStatus(map[event.error] || '文字起こしでエラーが発生しました');
+      };
+
+      instance.onresult = (event) => {
+        transcriptText.dataset.errorState = '';
+        let finalText = '';
+        let interimText = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalText += transcript + '\n';
+          } else {
+            interimText += transcript;
+          }
+        }
+
+        const existing = transcriptText.dataset.finalText || '';
+        const merged = (existing + finalText).trim();
+        transcriptText.dataset.finalText = merged ? merged + '\n' : '';
+        transcriptText.textContent = (merged ? merged + '\n' : '') + (interimText || '');
+
+        if (!transcriptText.textContent.trim()) {
+          transcriptText.textContent = 'ここに医師の話した内容の文字起こしが表示されます。';
+        }
+      };
+
+      return instance;
+    }
+
+    recognition = createRecognition();
+
+    if (!recognition) {
+      setSpeechStatus('このブラウザは音声認識に未対応');
+    } else if (browserInfo.id === 'safari') {
+      setSpeechStatus('Safari向け文字起こしの待機中');
+    } else if (browserInfo.id === 'chrome') {
+      setSpeechStatus('Chrome向け文字起こしの待機中');
+    } else {
+      setSpeechStatus('対応ブラウザなら利用可能');
+    }
+
+    function startSpeech() {
+      if (!recognition) {
+        alert('このブラウザではブラウザ内のマイク文字起こしに対応していません。貼り付け欄に別の文字起こし結果を入れて使ってください。');
+        return;
+      }
+
+      if (isListening) return;
+
+      transcriptText.dataset.errorState = '';
+      try {
+        recognition.start();
+      } catch (err) {
+        setSpeechStatus('開始できませんでした');
+      }
+    }
+
+    function stopSpeech() {
+      if (!recognition || !isListening) return;
+      recognition.stop();
+    }
+
+    async function copyTranscript() {
+      try {
+        await navigator.clipboard.writeText(transcriptText.textContent);
+        alert('文字起こしをコピーしました。');
+      } catch (err) {
+        alert('コピーできませんでした。手動で選択してコピーしてください。');
+      }
+    }
+
+    function clearTranscript() {
+      if (recognition && isListening) recognition.stop();
+      transcriptText.dataset.finalText = '';
+      transcriptText.dataset.errorState = '';
+      transcriptText.textContent = 'ここに医師の話した内容の文字起こしが表示されます。';
+
+      if (!recognition) {
+        setSpeechStatus('このブラウザは音声認識に未対応');
+      } else if (browserInfo.id === 'safari') {
+        setSpeechStatus('Safari向け文字起こしの待機中');
+      } else if (browserInfo.id === 'chrome') {
+        setSpeechStatus('Chrome向け文字起こしの待機中');
+      } else {
+        setSpeechStatus('対応ブラウザなら利用可能');
+      }
+    }
+
+    function insertTranscriptToMemo() {
+      const doctorWords = document.getElementById('doctorWords');
+      const text = transcriptText.textContent.trim();
+      if (!text || text === 'ここに医師の話した内容の文字起こしが表示されます。') {
+        alert('まだ文字起こし結果がありません。');
+        return;
+      }
+
+      const current = memo.value.trim();
+      memo.value = current
+        ? current + '\n\n【医師の話の文字起こし】\n' + text
+        : '【医師の話の文字起こし】\n' + text;
+      alert('自由メモに入れました。');
+    }
+
+    function useManualTranscript() {
+      const text = manualTranscript.value.trim();
+      if (!text) {
+        alert('貼り付け欄が空です。');
+        return;
+      }
+      transcriptText.dataset.finalText = text + '\n';
+      transcriptText.dataset.errorState = '';
+      transcriptText.textContent = text;
+      setSpeechStatus('貼り付け欄の内容を表示中');
+    }
+
+    severity.addEventListener('input', () => {
+      severityLabel.textContent = `${severity.value} / 10`;
+    });
+
+    function getCheckedValues(containerId) {
+      return [...document.querySelectorAll(`#${containerId} input:checked`)].map(el => el.value);
+    }
+
+    function getDuration() {
+      const picked = document.querySelector('input[name="duration"]:checked');
+      return picked ? picked.value : '';
+    }
+
+    function makeSummary() {
+      const name = document.getElementById('name').value.trim();
+      const age = document.getElementById('age').value.trim();
+      const history = document.getElementById('history').value.trim();
+      const memo = document.getElementById('memo').value.trim();
+      const doctorWords = document.getElementById('doctorWords').value.trim();
+
+      const communication = getCheckedValues('communicationChips');
+      const body = getCheckedValues('bodyChips');
+      const symptoms = getCheckedValues('symptomChips');
+      const redFlags = getCheckedValues('redFlagChips');
+      const duration = getDuration();
+      const severityValue = severity.value;
+
+      const lines = [];
+      lines.push('【かんたん問診メモ】');
+      if (name || age) {
+        lines.push(`名前: ${name || '未入力'} / 年齢: ${age || '未入力'}`);
+      }
+      if (communication.length) {
+        lines.push(`伝え方の希望: ${communication.join('、')}`);
+      }
+      if (body.length) {
+        lines.push(`つらい場所: ${body.join('、')}`);
+      }
+      if (symptoms.length) {
+        lines.push(`症状: ${symptoms.join('、')}`);
+      }
+      lines.push(`つらさ: ${severityValue} / 10`);
+      if (duration) {
+        lines.push(`いつから: ${duration}`);
+      }
+      if (history) {
+        lines.push(`持病・薬・アレルギー: ${history}`);
+      }
+      if (memo) {
+        lines.push(`自由メモ: ${memo}`);
+      }
+      if (redFlags.length) {
+        lines.push(`緊急で伝えたいこと: ${redFlags.join('、')}`);
+      }
+
+      if (lines.length === 2 && lines[1].startsWith('つらさ')) {
+        lines.push('※ まだ情報が少ないです。症状や場所を選ぶと、より伝わりやすくなります。');
+      }
+
+      resultText.textContent = lines.join('\n');
+
+      if (redFlags.length) {
+        alertBox.className = 'notice warn';
+        alertBox.textContent = '緊急性が高い可能性のある項目が選ばれています。受付・看護師・医師に、すぐこの画面を見せてください。';
+      } else {
+        alertBox.className = 'notice ok';
+        alertBox.textContent = 'まとめを作成しました。受付や医師にこの画面をそのまま見せて使えます。';
+      }
+    }
+
+    async function copySummary() {
+      try {
+        await navigator.clipboard.writeText(resultText.textContent);
+        alert('問診メモをコピーしました。');
+      } catch (err) {
+        alert('コピーできませんでした。画面の文章を手動で選んでコピーしてください。');
+      }
+    }
+
+    function printSummary() {
+      window.print();
+    }
+
+    function resetAll() {
+      document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(el => el.checked = false);
+      document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = '');
+      severity.value = 5;
+      severityLabel.textContent = '5 / 10';
+      resultText.textContent = 'ここにまとめが表示されます。';
+      alertBox.className = 'notice ok';
+      alertBox.textContent = 'まだ作成していません。上の「問診メモを作る」を押してください。';
+      clearTranscript();
+    }
+
+    document.getElementById('makeSummary').addEventListener('click', makeSummary);
+    document.getElementById('copySummary').addEventListener('click', copySummary);
+    document.getElementById('printSummary').addEventListener('click', printSummary);
+    document.getElementById('resetAll').addEventListener('click', resetAll);
+    document.getElementById('startSpeech').addEventListener('click', startSpeech);
+    document.getElementById('stopSpeech').addEventListener('click', stopSpeech);
+    document.getElementById('clearTranscript').addEventListener('click', clearTranscript);
+    document.getElementById('copyTranscript').addEventListener('click', copyTranscript);
+    document.getElementById('insertTranscriptToMemo').addEventListener('click', insertTranscriptToMemo);
+    document.getElementById('useManualTranscript').addEventListener('click', useManualTranscript);
+
+    makeSummary();
+  </script>
+</body>
+</html>
