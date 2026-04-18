@@ -496,7 +496,7 @@
           <button class="secondary" id="stopSpeech">停止</button>
           <button class="ghost" id="clearTranscript">文字起こしを消す</button>
           <button class="ghost" id="copyTranscript">文字起こしをコピー</button>
-          <button class="ghost" id="insertTranscriptToMemo">自由メモに入れる</button>
+          <button class="ghost" id="saveTranscriptPdf">文字起こしを保存</button>
         </div>
 
         <div class="transcript-box" id="transcriptText" aria-live="polite">ここに医師の話した内容の文字起こしが表示されます。</div>
@@ -522,7 +522,7 @@
         <h2>医師の言葉の保存欄</h2>
         <label for="doctorWords">医師が話した内容の保存（任意）</label>
         <textarea id="doctorWords" placeholder="ここに、文字起こしした医師の説明を保存します。あとで見返したい内容を残せます。"></textarea>
-        <p class="small">上の「医師の言葉を保存」を押すと、この欄に追記されます。</p>
+        <p class="small">この欄は必要なときに手入力で使えます。文字起こしは上の「文字起こしを保存」からPDFとして保存できます。</p>
       </section>
     </div>
   </div>
@@ -710,19 +710,85 @@
       }
     }
 
-    function insertTranscriptToMemo() {
-      const doctorWords = document.getElementById('doctorWords');
+    function saveTranscriptPdf() {
       const text = transcriptText.textContent.trim();
       if (!text || text === 'ここに医師の話した内容の文字起こしが表示されます。') {
         alert('まだ文字起こし結果がありません。');
         return;
       }
 
-      const current = memo.value.trim();
-      memo.value = current
-        ? current + '\n\n【医師の話の文字起こし】\n' + text
-        : '【医師の話の文字起こし】\n' + text;
-      alert('自由メモに入れました。');
+      const printWindow = window.open('', '_blank', 'width=900,height=700');
+      if (!printWindow) {
+        alert('新しい画面を開けませんでした。ポップアップを許可してから、もう一度お試しください。');
+        return;
+      }
+
+      const escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+
+      printWindow.document.write(`<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>文字起こし保存</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+      margin: 28px;
+      color: #111827;
+      line-height: 1.7;
+      background: #ffffff;
+    }
+    h1 {
+      font-size: 24px;
+      margin: 0 0 8px;
+    }
+    .meta {
+      color: #4b5563;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+    .box {
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 18px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 16px;
+    }
+    .note {
+      margin-top: 16px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    @media print {
+      body {
+        margin: 16mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>医師の話の文字起こし</h1>
+  <div class="meta">保存日時: ${y}/${m}/${d} ${hh}:${mm}</div>
+  <div class="box">${escaped}</div>
+  <div class="note">この画面から印刷を選び、SafariやChromeの保存先で「PDFとして保存」を選んでください。</div>
+</body>
+</html>`);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+      }, 300);
     }
 
     function useManualTranscript() {
@@ -839,7 +905,7 @@
     document.getElementById('stopSpeech').addEventListener('click', stopSpeech);
     document.getElementById('clearTranscript').addEventListener('click', clearTranscript);
     document.getElementById('copyTranscript').addEventListener('click', copyTranscript);
-    document.getElementById('insertTranscriptToMemo').addEventListener('click', insertTranscriptToMemo);
+    document.getElementById('saveTranscriptPdf').addEventListener('click', saveTranscriptPdf);
     document.getElementById('useManualTranscript').addEventListener('click', useManualTranscript);
 
     makeSummary();
