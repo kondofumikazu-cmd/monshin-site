@@ -62,6 +62,7 @@
     }
 
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
@@ -108,7 +109,10 @@
       margin: 0 0 10px;
     }
 
-    .small { font-size: .93rem; color: var(--muted); }
+    .small {
+      font-size: .93rem;
+      color: var(--muted);
+    }
 
     .grid {
       display: grid;
@@ -146,7 +150,10 @@
       color: var(--text);
     }
 
-    textarea { min-height: 100px; resize: vertical; }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
 
     .chips {
       display: flex;
@@ -318,20 +325,7 @@
 
     .status-pill.live .status-dot {
       background: var(--danger);
-      box-shadow: 0 0 0 6px color-mix(in srgb, var(--danger) 22%, transparent);
-    }
-
-    .two-column {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 12px;
-    }
-
-    @media (max-width: 760px) {
-      .two-column {
-        grid-template-columns: 1fr;
-      }
+      box-shadow: 0 0 0 6px rgba(185, 28, 28, 0.18);
     }
 
     .browser-badge {
@@ -346,13 +340,34 @@
       font-weight: 800;
       margin-bottom: 12px;
     }
+
+    @media print {
+      .hero .small,
+      .actions,
+      .footer-note,
+      #speechStatus,
+      #browserBadge,
+      #speechBrowserNotice {
+        display: none !important;
+      }
+
+      body {
+        background: #fff;
+        color: #000;
+      }
+
+      .hero, .card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <section class="hero">
       <h1>かんたん問診メモ</h1>
-      <p>聴覚障害がある人、話しにくい人、声が出しにくい人向けの、<strong>選ぶだけの簡易問診サイト</strong>です。選んだ内容を下にまとめて、受付や医師にそのまま見せられます。</p>
+      <p>聴覚障害がある人、話しにくい人、声が出しにくい人向けの、選ぶだけの簡易問診サイトです。選んだ内容を下にまとめて、受付や医師にそのまま見せられます。</p>
       <p class="small">このサイトは診断をするものではありません。強い胸の痛み、息苦しさ、意識がおかしい、大量の出血、片側のまひなどがあるときは、すぐに救急や病院スタッフに知らせてください。</p>
     </section>
 
@@ -464,7 +479,7 @@
       </section>
 
       <section class="card col-12">
-        <h2>8. 自由メモ</h2>
+        <h2>8. 本人メモ</h2>
         <label for="memo">医師に伝えたいこと（任意）</label>
         <textarea id="memo" placeholder="例：右のこめかみがズキズキします。光がまぶしいです。熱は測っていません。"></textarea>
 
@@ -479,7 +494,7 @@
       <section class="card col-12">
         <h2>医師・受付に見せる画面</h2>
         <div id="alertBox" class="notice ok">まだ作成していません。上の「問診メモを作る」を押してください。</div>
-        <div class="result" id="resultText" aria-live="polite">ここにまとめが表示されます。</div>
+        <div class="result" id="resultText">ここにまとめが表示されます。</div>
         <p class="footer-note">この画面はブラウザ内だけで動きます。サーバーに送信しないので、初心者でも扱いやすく、GitHub Pagesでそのまま公開できます。</p>
       </section>
 
@@ -487,9 +502,12 @@
         <h2>医師の話を文字起こし</h2>
         <div class="browser-badge" id="browserBadge">使用ブラウザを確認中...</div>
         <div id="speechBrowserNotice" class="notice info">ブラウザに合わせた文字起こし方法を準備しています。</div>
-        <p class="small">この欄は、SafariならSafari系の音声認識、ChromeならChrome系の音声認識を自動判定して使います。対応していない場合は、このブラウザでは文字起こし機能を使えません。</p>
+        <p class="small">この欄は、SafariならSafari系、ChromeならChrome系の音声認識を自動判定して使います。対応していない場合は、このブラウザでは文字起こし機能を使えません。</p>
 
-        <div id="speechStatus" class="status-pill"><span class="status-dot"></span><span id="speechStatusText">待機中</span></div>
+        <div id="speechStatus" class="status-pill">
+          <span class="status-dot"></span>
+          <span id="speechStatusText">待機中</span>
+        </div>
 
         <div class="actions">
           <button class="primary" id="startSpeech">マイク開始</button>
@@ -499,14 +517,19 @@
           <button class="ghost" id="saveTranscriptPdf">文字起こしを保存</button>
         </div>
 
-        <div class="transcript-box" id="transcriptText" aria-live="polite">ここに医師の話した内容の文字起こしが表示されます。</div>
+        <textarea
+          class="transcript-box"
+          id="transcriptText"
+          aria-label="文字起こしと自分用メモ"
+          placeholder="ここに医師の話した内容の文字起こしが表示されます。あとで自分のことも入力できます。"
+        ></textarea>
 
         <div>
           <h3>ブラウザ文字起こしの結果</h3>
-          <p class="small">マイクで取得した結果がここに入ります。必要なら上の「文字起こしを保存」からPDFとして保存できます。</p>
+          <p class="small">この欄には、医師の話の文字起こしだけでなく、自分であとから内容を書き足すこともできます。「文字起こしを保存」を押すと、問診メモと文字起こしの両方をまとめてPDF保存できます。</p>
         </div>
 
-        <p class="footer-note">注意: このサイトは静的サイトなので、iPhoneの標準アプリの専用文字起こし画面そのものを直接呼び出す仕組みではありません。各ブラウザで使える Web Speech API 系の音声認識を使います。対応状況はブラウザごとに差があります。</p>
+        <p class="footer-note">注意: このサイトは静的サイトなので、iPhoneの標準アプリの専用文字起こし画面そのものを直接呼び出す仕組みではありません。各ブラウザで使える音声認識機能を使います。</p>
       </section>
     </div>
   </div>
@@ -542,7 +565,7 @@
         return {
           id: 'safari',
           label: 'Safari を検出',
-          description: 'Safari系として扱います。Apple系ブラウザ機能による文字起こしを試します。'
+          description: 'Safari系として扱います。Safariで使える文字起こしを試します。'
         };
       }
 
@@ -550,7 +573,7 @@
         return {
           id: 'chrome',
           label: 'Chrome を検出',
-          description: 'Chrome系として扱います。Chrome系ブラウザの音声認識を使います。'
+          description: 'Chrome系として扱います。Chrome系の音声認識を使います。'
         };
       }
 
@@ -609,6 +632,7 @@
 
       instance.onresult = (event) => {
         transcriptText.dataset.errorState = '';
+
         let finalText = '';
         let interimText = '';
 
@@ -621,14 +645,23 @@
           }
         }
 
-        const existing = transcriptText.dataset.finalText || '';
-        const merged = (existing + finalText).trim();
-        transcriptText.dataset.finalText = merged ? merged + '\n' : '';
-        transcriptText.textContent = (merged ? merged + '\n' : '') + (interimText || '');
+        const existingFinal = transcriptText.dataset.finalText || '';
+        const mergedFinal = existingFinal + finalText;
+        const newSpeechRendered = mergedFinal + interimText;
 
-        if (!transcriptText.textContent.trim()) {
-          transcriptText.textContent = 'ここに医師の話した内容の文字起こしが表示されます。';
+        const previousRendered = transcriptText.dataset.renderedText || '';
+        const currentValue = transcriptText.value || '';
+        let manualSuffix = '';
+
+        if (currentValue.startsWith(previousRendered)) {
+          manualSuffix = currentValue.slice(previousRendered.length);
+        } else if (currentValue.startsWith(existingFinal)) {
+          manualSuffix = currentValue.slice(existingFinal.length);
         }
+
+        transcriptText.dataset.finalText = mergedFinal;
+        transcriptText.dataset.renderedText = newSpeechRendered;
+        transcriptText.value = newSpeechRendered + manualSuffix;
       };
 
       return instance;
@@ -669,18 +702,19 @@
 
     async function copyTranscript() {
       try {
-        await navigator.clipboard.writeText(transcriptText.textContent);
+        await navigator.clipboard.writeText(transcriptText.value);
         alert('文字起こしをコピーしました。');
       } catch (err) {
-        alert('コピーできませんでした。手動で選択してコピーしてください。');
+        alert('コピーできませんでした。画面の文章を手動で選んでコピーしてください。');
       }
     }
 
     function clearTranscript() {
       if (recognition && isListening) recognition.stop();
       transcriptText.dataset.finalText = '';
+      transcriptText.dataset.renderedText = '';
       transcriptText.dataset.errorState = '';
-      transcriptText.textContent = 'ここに医師の話した内容の文字起こしが表示されます。';
+      transcriptText.value = '';
 
       if (!recognition) {
         setSpeechStatus('このブラウザは音声認識に未対応');
@@ -691,87 +725,6 @@
       } else {
         setSpeechStatus('対応ブラウザなら利用可能');
       }
-    }
-
-    function saveTranscriptPdf() {
-      const text = transcriptText.textContent.trim();
-      if (!text || text === 'ここに医師の話した内容の文字起こしが表示されます。') {
-        alert('まだ文字起こし結果がありません。');
-        return;
-      }
-
-      const printWindow = window.open('', '_blank', 'width=900,height=700');
-      if (!printWindow) {
-        alert('新しい画面を開けませんでした。ポップアップを許可してから、もう一度お試しください。');
-        return;
-      }
-
-      const escaped = text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, '0');
-      const d = String(now.getDate()).padStart(2, '0');
-      const hh = String(now.getHours()).padStart(2, '0');
-      const mm = String(now.getMinutes()).padStart(2, '0');
-
-      printWindow.document.write(`<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>文字起こし保存</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
-      margin: 28px;
-      color: #111827;
-      line-height: 1.7;
-      background: #ffffff;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0 0 8px;
-    }
-    .meta {
-      color: #4b5563;
-      margin-bottom: 18px;
-      font-size: 14px;
-    }
-    .box {
-      border: 1px solid #d1d5db;
-      border-radius: 12px;
-      padding: 18px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 16px;
-    }
-    .note {
-      margin-top: 16px;
-      font-size: 13px;
-      color: #6b7280;
-    }
-    @media print {
-      body {
-        margin: 16mm;
-      }
-    }
-  </style>
-</head>
-<body>
-  <h1>医師の話の文字起こし</h1>
-  <div class="meta">保存日時: ${y}/${m}/${d} ${hh}:${mm}</div>
-  <div class="box">${escaped}</div>
-  <div class="note">この画面から印刷を選び、SafariやChromeの保存先で「PDFとして保存」を選んでください。</div>
-</body>
-</html>`);
-      printWindow.document.close();
-      printWindow.focus();
-      setTimeout(() => {
-        printWindow.print();
-      }, 300);
     }
 
     severity.addEventListener('input', () => {
@@ -787,7 +740,7 @@
       return picked ? picked.value : '';
     }
 
-    function makeSummary() {
+    function buildSummaryLines() {
       const name = document.getElementById('name').value.trim();
       const age = document.getElementById('age').value.trim();
       const history = document.getElementById('history').value.trim();
@@ -801,6 +754,7 @@
 
       const lines = [];
       lines.push('【かんたん問診メモ】');
+
       if (name || age) {
         lines.push(`名前: ${name || '未入力'} / 年齢: ${age || '未入力'}`);
       }
@@ -813,7 +767,9 @@
       if (symptoms.length) {
         lines.push(`症状: ${symptoms.join('、')}`);
       }
+
       lines.push(`つらさ: ${severityValue} / 10`);
+
       if (duration) {
         lines.push(`いつから: ${duration}`);
       }
@@ -821,7 +777,7 @@
         lines.push(`持病・薬・アレルギー: ${history}`);
       }
       if (memo) {
-        lines.push(`自由メモ: ${memo}`);
+        lines.push(`本人メモ: ${memo}`);
       }
       if (redFlags.length) {
         lines.push(`緊急で伝えたいこと: ${redFlags.join('、')}`);
@@ -831,6 +787,11 @@
         lines.push('※ まだ情報が少ないです。症状や場所を選ぶと、より伝わりやすくなります。');
       }
 
+      return { lines, redFlags };
+    }
+
+    function makeSummary() {
+      const { lines, redFlags } = buildSummaryLines();
       resultText.textContent = lines.join('\n');
 
       if (redFlags.length) {
@@ -856,14 +817,116 @@
     }
 
     function resetAll() {
-      document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(el => el.checked = false);
-      document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = '');
+      document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(el => {
+        el.checked = false;
+      });
+      document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => {
+        if (el.id !== 'transcriptText') el.value = '';
+      });
       severity.value = 5;
       severityLabel.textContent = '5 / 10';
       resultText.textContent = 'ここにまとめが表示されます。';
       alertBox.className = 'notice ok';
       alertBox.textContent = 'まだ作成していません。上の「問診メモを作る」を押してください。';
       clearTranscript();
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function saveTranscriptPdf() {
+      makeSummary();
+
+      const summary = resultText.textContent.trim() || '問診メモがありません。';
+      const transcript = transcriptText.value.trim();
+      const transcriptBody = transcript || '文字起こしはまだありません。';
+
+      const printWindow = window.open('', '_blank', 'width=960,height=800');
+      if (!printWindow) {
+        alert('新しい画面を開けませんでした。ポップアップを許可してから、もう一度お試しください。');
+        return;
+      }
+
+      const escapedSummary = escapeHtml(summary);
+      const escapedTranscript = escapeHtml(transcriptBody);
+
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+
+      printWindow.document.write(`<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>問診メモと文字起こし保存</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+      margin: 28px;
+      color: #111827;
+      line-height: 1.7;
+      background: #ffffff;
+    }
+    h1 {
+      font-size: 24px;
+      margin: 0 0 8px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 28px 0 10px;
+    }
+    .meta {
+      color: #4b5563;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+    .box {
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 18px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 16px;
+      background: #ffffff;
+    }
+    .note {
+      margin-top: 18px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    @media print {
+      body {
+        margin: 16mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>問診メモと文字起こし</h1>
+  <div class="meta">保存日時: ${y}/${m}/${d} ${hh}:${mm}</div>
+
+  <h2>かんたん問診メモ</h2>
+  <div class="box">${escapedSummary}</div>
+
+  <h2>文字起こし・追記メモ</h2>
+  <div class="box">${escapedTranscript}</div>
+
+  <div class="note">この画面で印刷を選び、SafariやChromeの保存先で「PDFとして保存」を選んでください。</div>
+</body>
+</html>`);
+      printWindow.document.close();
+      printWindow.focus();
+
+      setTimeout(() => {
+        printWindow.print();
+      }, 300);
     }
 
     document.getElementById('makeSummary').addEventListener('click', makeSummary);
